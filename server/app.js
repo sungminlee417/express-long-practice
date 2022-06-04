@@ -1,10 +1,26 @@
 const express = require("express");
 const app = express();
 require("express-async-errors");
-
 app.use(express.json());
 
+const dogRouter = require('./routes/dogs')
+app.use('/dogs', dogRouter)
+
 app.use("/static", express.static("assets"));
+
+app.use((req, res, next) => {
+  console.log(req.method, req.url)
+  res.on('finish', () => {
+    console.log(res.statusCode)
+  })
+  next()
+})
+
+app.use((req, res, next) => {
+  const err = new Error ('The requested resource couldnt be found')
+  err.statusCode = 404;
+  next(err)
+})
 
 // For testing purposes, GET /
 app.get("/", (req, res) => {
